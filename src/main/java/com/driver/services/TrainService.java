@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ public class TrainService {
         //and route String logic to be taken from the Problem statement.
         //Save the train and return the trainId that is generated from the database.
         //Avoid using the lombok library
+        trainEntryDto.setDepartureTime(LocalTime.now());
         List<Station> stationList = trainEntryDto.getStationRoute();
         String stationRoute = "";
         for(Station station : stationList)
@@ -118,8 +120,21 @@ public class TrainService {
         //You can assume that the date change doesn't need to be done ie the travel will certainly happen with the same date (More details
         //in problem statement)
         //You can also assume the seconds and milli seconds value will be 0 in a LocalTime format.
+        List<Train> allTrains = trainRepository.findAll();
+        List<Integer> listOfTrains = new ArrayList<>();
 
-        return null;
+        for (Train train: allTrains) {
+            LocalTime depTime = train.getDepartureTime();
+            String [] stations = train.getRoute().split(",");
+            ArrayList<String> stationsAsArrayList = new ArrayList<>(Arrays.asList(stations));
+            if (stationsAsArrayList.contains(station.toString())) {
+                LocalTime stationTime = depTime.plusHours(stationsAsArrayList.indexOf(station.toString()));
+                if ((stationTime.isAfter(startTime) && stationTime.isBefore(endTime)) || stationTime.equals(startTime) || stationTime.equals(endTime)) {
+                    listOfTrains.add(train.getTrainId());
+                }
+            }
+        }
+        return listOfTrains;
     }
 
 }
