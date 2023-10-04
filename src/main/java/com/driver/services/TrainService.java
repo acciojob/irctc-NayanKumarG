@@ -94,7 +94,21 @@ public class TrainService {
         //We need to find out the age of the oldest person that is travelling the train
         //If there are no people travelling in that train you can return 0
 
-        return 0;
+        Train train = trainRepository.findById(trainId).get();
+        List<Ticket> ticketList = train.getBookedTickets();
+        if(ticketList.size()==0) return 0;
+        int age = Integer.MIN_VALUE;
+
+        for(Ticket ticket : ticketList)
+        {
+            List<Passenger> passengerList = ticket.getPassengersList();
+            for(Passenger passenger : passengerList)
+            {
+                if(passenger.getAge()>age) age = passenger.getAge();
+            }
+        }
+
+        return age;
     }
 
     public List<Integer> trainsBetweenAGivenTime(Station station, LocalTime startTime, LocalTime endTime){
